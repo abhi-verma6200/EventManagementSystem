@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>College Events - Student Portal</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h2>Available College Events</h2>
+  <div id="eventsList"></div>
+
+  <script type="module">
+    import { auth, db } from "./firebase.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    // NOTE: query and where are needed to find the student document
+    import { collection, getDocs, addDoc, serverTimestamp, query, where } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    const eventsList = document.getElementById("eventsList");
+    // Global variable to hold the student's name
+    let studentName = ""; 
+
+    // 🔹 Check if student is logged in
+    onAuthStateChanged(auth, async (user) => { // Made async to support Firestore query
+      if (!user) {
+        // If not logged in, send back to login
+        window.location.href = "student-login.html";
+      } else {
+        // 🚨 NEW LOGIC: Fetch Student Name from 'students' collection
+        try {
+            const studentsQuery = query(collection(db, "students"), where("uid", "==", user.uid));
+            const studentSnapshot = await getDocs(studentsQuery);
+
+            if (!studentSnapshot.empty) {
+                // Assume only one document per UID
+                studentName = studentSnapshot.docs[0].data().name; 
+            } else {
+                console.warn("Student data not found in 'students' collection for UID:", user.uid);
+                studentName = user.email; // Fallback to email if name isn't found
+            }
+
+        } catch (error) {
+            console.error("Error fetching student name:", error);
+            studentName = user.email; // Fallback on error
+        }
+
+        loadEvents(user); 
+      }
+    });
+
+    // 🔹 Load events from Firestore
+    async function loadEvents(user) {
+      eventsList.innerHTML = "";
+      const querySnapshot = await getDocs(collection(db, "events"));
+
+      querySnapshot.forEach((doc) => {
+        const event = doc.data();
+        const eventId = doc.id;
+
+        const div = document.createElement("div");
+        div.className = "event-card";
+
+        div.innerHTML = `
+          <h3>${event.title}</h3>
+          <p>${event.description}</p>
+          <p><b>Date:</b> ${event.date} | <b>Venue:</b> ${event.venue}</p>
+          <button id="reg-${eventId}" class="register-btn">Register</button>
+        `;
+        eventsList.appendChild(div);
+
+        // 🔹 Register button click event
+        document.getElementById(`reg-${eventId}`).addEventListener("click", async () => {
+          try {
+            await addDoc(collection(db, "registrations"), {
+              eventId,
+              eventTitle: event.title,
+              studentUid: user.uid,
+              studentEmail: user.email,
+              studentName: studentName, // 🚨 CRITICAL CHANGE: Pass the fetched name
+              registeredAt: serverTimestamp()
+            });
+            alert("✅ Registration successful!");
+          } catch (error) {
+            alert("❌ Error registering: " + error.message);
+          }
+        });
+      });
+    }
+  </script>
+</body>
+</html>

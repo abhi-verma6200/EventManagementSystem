@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Registration</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h2>Student Registration</h2>
+  <form id="registerForm">
+    <input type="text" id="name" placeholder="Full Name" required><br>
+    <input type="email" id="email" placeholder="Email" required><br>
+    <input type="text" id="prn" placeholder="College PRN" required><br>
+    <input type="text" id="class" placeholder="Class (e.g., TY B.Tech CSE)" required><br>
+    <input type="text" id="year" placeholder="Year (e.g., 3rd)" required><br>
+    <input type="text" id="college" placeholder="College Name" required><br>
+    <input type="password" id="password" placeholder="Password" required><br>
+    <button type="submit">Register</button>
+  </form>
+  <p id="message"></p>
+
+  <script type="module">
+    import { auth, db } from "./firebase.js";
+    import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import { collection, addDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    const form = document.getElementById("registerForm");
+    const message = document.getElementById("message");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const prn = document.getElementById("prn").value;
+      const studentClass = document.getElementById("class").value;
+      const year = document.getElementById("year").value;
+      const college = document.getElementById("college").value;
+      const password = document.getElementById("password").value;
+
+      try {
+        // 1️⃣ Create student in Firebase Auth
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // 2️⃣ Save extra student info in Firestore
+        await addDoc(collection(db, "students"), {
+          uid: user.uid,
+          name,
+          email,
+          prn,
+          class: studentClass,
+          year,
+          college
+        });
+
+        message.innerText = "✅ Registration successful! You can now log in.";
+        window.location.href = "student_login.html"; // Redirect to login page
+        form.reset();
+      } catch (error) {
+        message.innerText = "❌ Error: " + error.message;
+      }
+    });
+  </script>
+</body>
+</html>

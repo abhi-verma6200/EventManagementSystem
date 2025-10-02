@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h2>Event dashboard</h2>
+    <form id="eventform"> <input type="text" id="title" placeholder="Event title" required>
+        <textarea id="description" placeholder="Event Description" required></textarea><br>
+        <input type="date" id="date" required> <input type="text" id="venue" placeholder="Venue" required> <input type="text" id="club" placeholder="Enter club name" required>
+        <button type="submit">Add Event</button>
+    </form>
+    <h3>Existing Events</h3>
+
+    <div id="eventsList"></div>
+
+    <script type="module">
+        import { db } from "./firebase.js";
+        // Ensure all required Firestore functions are imported
+        import { collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+        const eventform = document.getElementById("eventform");
+        const eventsList = document.getElementById("eventsList");
+
+        // --- SIMPLIFIED AND CORRECTED Function to Load Registrations for a specific Event ---
+        async function loadRegistrations(eventId, registrationListDiv) {
+            registrationListDiv.innerHTML = "<h5>Loading Registrations...</h5>";
+            
+            // 1. Get all registrations for the event
+            // This query should be very fast.
+            const regQuery = query(collection(db, "registrations"), where("eventId", "==", eventId));
+            const regSnapshot = await getDocs(regQuery);
+
+            if (regSnapshot.empty) {
+                registrationListDiv.innerHTML = "<h5>No registrations yet.</h5>";
+                return;
+            }
+            
+            let html = "<h5>Registered Students:</h5>";
+            
+            // 2. Directly use the fields stored in the registration document
+            regSnapshot.forEach((regDoc) => {
+                const reg = regDoc.data();
+                
+                // Fields are studentName and studentEmail, as seen in events.html file
+                const name = reg.studentName || 'Name not provided'; 
+                const email = reg.studentEmail || 'Email not provided'; 
+                
+                html += `
+                    <div class="registration-card">
+                        <p><b>Name:</b> ${name}</p>
+                        <p><b>Email:</b> ${email}</p>
+                    </div>
+                `;
+            });
+
+            registrationListDiv.innerHTML = html;
+        }
+
+        // add new event
+        eventform.addEventListener("submit", async(e)=>{
+            e.preventDefault();
+            const title = document.getElementById("title").value;
+            const description = document.getElementById("description").value;
+            const date = document.getElementById("date").value;
+            const venue = document.getElementById("venue").value;
+            const club=document.getElementById("club").value;
+
+            try{
+                await addDoc(collection(db,"events"),{
+                    title,
+                    description,
+                    date,
+                    venue,
+                    club,
+                });
+                alert("Event added successfully");
+                eventform.reset(); 
+                loadEvents();
+            }catch(error){
+                alert("Error adding events: "+error.message);
+            }
+        });
+
+        // Load existing events
+        async function loadEvents() {
+          eventsList.innerHTML = "";
+          const querySnapshot = await getDocs(collection(db, "events"));
+          querySnapshot.forEach((doc) => {
+            const event = doc.data();
+            const eventId = doc.id;
+            const div = document.createElement("div");
+            
+            div.className = "event-card"; 
+            
+            div.innerHTML = `
+              <h4>${event.title} (${event.club})</h4>
+              <p>${event.description}</p>
+              <p><b>Date:</b> ${event.date} | <b>Venue:</b> ${event.venue}</p>
+              <span class="registration-list-toggle" data-id="${eventId}">View Registrations</span>
+              <div id="reg-list-${eventId}" class="registration-list" style="display:none;"></div>
+            `;
+            eventsList.appendChild(div);
+            
+            // Add event listener for the toggle button
+            document.querySelector(`.registration-list-toggle[data-id="${eventId}"]`).addEventListener("click", function() {
+                const listDiv = document.getElementById(`reg-list-${eventId}`);
+                if (listDiv.style.display === 'none') {
+                    listDiv.style.display = 'block';
+                    this.textContent = 'Hide Registrations';
+                    // Load data if it's the first time the list is opened or if it's showing the initial message
+                    if (listDiv.innerHTML.includes('Loading Registrations...') || listDiv.innerHTML === '') {
+                        loadRegistrations(eventId, listDiv);
+                    }
+                } else {
+                    listDiv.style.display = 'none';
+                    this.textContent = 'View Registrations';
+                }
+            });
+          });
+        }
+
+        // Load events on page load
+        loadEvents();
+    </script>
+</body>
+</html>

@@ -1,0 +1,226 @@
+/* Google Font Import - Using 'Inter' for a clean, professional look */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+
+/* Color Palette (CSS Variables) - Dark theme with bright, technical accents */
+:root {
+  --primary-color: #00bcd4;     /* Cyan/Teal - Primary Accent */
+  --secondary-color: #ff9800;   /* Amber - Secondary Accent */
+  --text-color: #e0e0e0;        /* Off-White Text */
+  --background-color: #1a1a2e;  /* Deep Navy/Space Blue Background */
+  --card-bg-color: #2c2c42;     /* Darker Card Background */
+  --border-color: #3f3f5a;
+  --success-color: #4caf50;
+  --error-color: #e91e63;
+}
+
+/* General Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--background-color);
+  color: var(--text-color);
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* Headings */
+h2 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: var(--primary-color);
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  position: relative;
+}
+
+h2::after { /* Technical Underline effect */
+    content: '';
+    display: block;
+    width: 100px;
+    height: 4px;
+    background: var(--secondary-color);
+    margin: 12px auto 0;
+    border-radius: 2px;
+}
+
+h3 {
+    color: var(--secondary-color);
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-weight: 700;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 5px;
+}
+
+/* Containers (Forms and Lists) */
+form, div#eventsList, div.event-card, div.registration-card {
+  background: var(--card-bg-color);
+  border-radius: 12px;
+  padding: 30px;
+  margin: 20px auto;
+  width: 100%;
+  max-width: 750px;
+  /* Glowing shadow effect */
+  box-shadow: 0 0 20px rgba(0, 188, 212, 0.1), 0 5px 15px rgba(0, 0, 0, 0.5);
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s ease;
+}
+
+form:hover, div.event-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 0 30px rgba(0, 188, 212, 0.3), 0 10px 25px rgba(0, 0, 0, 0.7);
+}
+
+/* Input fields and Textareas */
+input, textarea {
+  width: 100%;
+  padding: 14px;
+  margin: 10px 0;
+  background: var(--background-color);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  font-size: 16px;
+}
+
+input:focus, textarea:focus {
+  border-color: var(--primary-color);
+  outline: none;
+  box-shadow: 0 0 10px rgba(0, 188, 212, 0.5);
+}
+
+textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+/* Buttons */
+button {
+  background: var(--primary-color);
+  color: var(--background-color); /* Dark text on bright button */
+  border: none;
+  padding: 14px 30px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+  margin-top: 20px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+button:hover {
+  background: #00e5ff; /* Lighter shade of cyan */
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
+}
+
+button.register-btn {
+    background: var(--secondary-color);
+}
+
+button.register-btn:hover {
+    background: #ffb74d; /* Lighter shade of amber */
+}
+
+/* Message Display (Login/Error) */
+p#message {
+    text-align: center;
+    margin-top: 25px;
+    font-weight: 600;
+    padding: 15px;
+    background: var(--error-color);
+    color: white;
+    border-radius: 8px;
+    max-width: 450px;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* Specific Event Card Styling */
+div.event-card {
+    border-left: 6px solid var(--secondary-color); /* Amber highlight strip */
+    padding: 25px;
+}
+
+div.event-card h4 {
+    color: var(--primary-color);
+    margin-bottom: 8px;
+    font-size: 1.5em;
+}
+
+div.event-card p {
+    margin-bottom: 5px;
+    color: var(--text-color);
+    font-size: 1em;
+}
+
+div.event-card p b {
+    color: var(--secondary-color);
+    font-weight: 600;
+}
+
+/* Registration List Styling (Dashboard) */
+.registration-list-toggle {
+    color: var(--primary-color);
+    cursor: pointer;
+    font-weight: 600;
+    margin-top: 15px;
+    display: inline-block;
+    border-bottom: 2px dashed var(--primary-color);
+}
+
+.registration-list-toggle:hover {
+    color: #00e5ff;
+}
+
+.registration-list {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+}
+
+.registration-list h5 {
+    color: var(--primary-color);
+    margin: 10px 0;
+    font-size: 1.1em;
+    font-weight: 700;
+}
+
+.registration-card {
+    padding: 12px 18px;
+    margin: 10px 0;
+    background: #15152a; /* Slightly darker than card for contrast */
+    border-left: 4px solid var(--success-color);
+    border-radius: 6px;
+    box-shadow: none;
+    transition: background 0.3s ease;
+}
+
+.registration-card:hover {
+    background: #0f0f20;
+}
+
+/* Utility for Student Portal (events.html) */
+div#eventsList {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+    max-width: 1200px;
+}
+
+div#eventsList .event-card {
+    margin: 0;
+}
